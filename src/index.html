@@ -1056,6 +1056,17 @@
       accent-color: #10b981;
       flex-shrink: 0;
     }
+  
+    /* V6 Android Notch & Status Bar Safe-Area Fix */
+    @media (max-width: 1023px) {
+      header.sticky, header {
+        padding-top: max(env(safe-area-inset-top, 0px), 36px) !important;
+      }
+      #mobileNav {
+        padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px) !important;
+      }
+    }
+
   </style>
 </head>
 <body class="pb-24 lg:pb-12 selection:bg-amber-500/30 selection:text-amber-200">
