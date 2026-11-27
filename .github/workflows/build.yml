@@ -66,18 +66,10 @@ jobs:
         run: |
           npx tauri icon src-tauri/icons/icon.svg
           npx tauri android init --ci
-      - name: Build Stripped Release Android APK (aarch64)
-        run: npx tauri android build --apk --target aarch64
-      - name: Align & Sign Release APK (~15 MB)
-        run: |
-          BT_DIR=$(ls -d "$ANDROID_HOME/build-tools/"* | sort -V | tail -n 1)
-          UNSIGNED=$(find src-tauri/gen/android/app/build/outputs/apk -name "*release*.apk" | head -n 1)
-          keytool -genkey -v -keystore /tmp/masar-release.jks -alias masar -keyalg RSA -keysize 2048 -validity 10000 -storepass masarv6pass -keypass masarv6pass -dname "CN=AbdullahMasar,O=Masar,C=EG"
-          "$BT_DIR/zipalign" -p -f 4 "$UNSIGNED" /tmp/aligned.apk
-          "$BT_DIR/apksigner" sign --ks /tmp/masar-release.jks --ks-pass pass:masarv6pass --key-pass pass:masarv6pass --out abdullah-masar-v6-release.apk /tmp/aligned.apk
-          ls -lh abdullah-masar-v6-release.apk
+      - name: Build Compact Android APK (~18 MB)
+        run: npx tauri android build --apk --debug --target aarch64
       - name: Upload Compact Android APK
         uses: actions/upload-artifact@v4
         with:
           name: abdullah-masar-v6-android-apk
-          path: abdullah-masar-v6-release.apk
+          path: src-tauri/gen/android/app/build/outputs/apk/**/*.apk
