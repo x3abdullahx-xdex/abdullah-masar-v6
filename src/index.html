@@ -1822,6 +1822,8 @@
           <div class="flex items-center gap-2 flex-wrap">
             <button id="v6BtnTestRing" type="button" class="px-3 py-1.5 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/35 text-emerald-300 text-xs font-bold">🔊 جرّب تدرّج نغمة الإنجاز (1→20)</button>
             <button id="v6BtnOpenBulk2" type="button" class="px-3 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/35 text-cyan-300 text-xs font-bold">📥 استيراد جدول كامل</button>
+            <button id="v6BtnHotUpdate" type="button" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-black">⚡ تحديث الواجهة (2 ثانية)</button>
+            <button id="v6BtnHotRollback" type="button" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-xs font-bold" title="الرجوع للنسخة المدمجة">↩️</button>
           </div>
           <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-300 cursor-pointer">
             <input id="v6TrayToggle" type="checkbox" checked class="accent-emerald-500 w-4 h-4 rounded" />
@@ -7961,6 +7963,57 @@ YYYY-MM-DD | HH:MM | العنوان | التصنيف | التكرار
           return res;
         };
       }
+
+      // --- 12. 2-Second Native UI Hot-Updater (PC & Android, 100% Offline Cached) ---
+      if (isTauri && !window.__MASAR_HOT_APPLIED__) {
+        window.__TAURI__.core.invoke('load_hot_ui').then(hotHtml => {
+          if (hotHtml && hotHtml.length > 100000 && hotHtml !== document.documentElement.outerHTML) {
+            const appliedHash = sessionStorage.getItem('masar_hot_len');
+            if (appliedHash !== String(hotHtml.length)) {
+              sessionStorage.setItem('masar_hot_len', String(hotHtml.length));
+              window.__MASAR_HOT_APPLIED__ = true;
+              document.open();
+              document.write(hotHtml);
+              document.close();
+            }
+          }
+        }).catch(() => {});
+      }
+
+      const btnHot = document.getElementById('v6BtnHotUpdate');
+      if (btnHot) {
+        btnHot.onclick = async () => {
+          if (!isTauri) return showToast('ميزة التحديث الفوري تعمل داخل تطبيق PC أو Android المثبت', 'amber');
+          btnHot.disabled = true;
+          btnHot.textContent = '⏳ جاري جلب التحديث...';
+          try {
+            const bytes = await window.__TAURI__.core.invoke('fetch_and_save_ui_update', {
+              owner: 'x3abdullahx-xdex',
+              repo: 'abdullah-masar-v6',
+              branch: 'main'
+            });
+            sessionStorage.removeItem('masar_hot_len');
+            showToast(`تم تنزيل التحديث (${Math.round(bytes / 1024)} KB) — جاري إعادة التشغيل ⚡`, 'emerald');
+            setTimeout(() => location.reload(), 700);
+          } catch (err) {
+            showToast(String(err), 'amber');
+            btnHot.disabled = false;
+            btnHot.textContent = '⚡ تحديث الواجهة (2 ثانية)';
+          }
+        };
+      }
+
+      const btnRollback = document.getElementById('v6BtnHotRollback');
+      if (btnRollback) {
+        btnRollback.onclick = async () => {
+          if (!isTauri) return;
+          await window.__TAURI__.core.invoke('clear_hot_ui').catch(() => {});
+          sessionStorage.removeItem('masar_hot_len');
+          showToast('تمت استعادة الواجهة الأصلية المدمجة ↩️', 'cyan');
+          setTimeout(() => location.reload(), 600);
+        };
+      }
+
     })();
   </script>
 
