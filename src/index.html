@@ -1071,16 +1071,16 @@
 </head>
 <body class="pb-24 lg:pb-12 selection:bg-amber-500/30 selection:text-amber-200">
 
-  <!-- V6 Custom Frameless Desktop Titlebar (Pure Inline CSS) -->
-  <div id="v6DesktopTitlebar" data-tauri-drag-region style="display:none; position:sticky; top:0; left:0; right:0; z-index:9999; height:34px; background:#070b14; border-bottom:1px solid rgba(148,163,184,0.18); padding:0 12px; align-items:center; justify-content:space-between; user-select:none; direction:rtl;">
-    <div data-tauri-drag-region style="display:flex; align-items:center; gap:8px; font-size:11px; font-weight:800; color:#94a3b8; flex:1; height:100%; cursor:default;">
-      <span style="width:8px; height:8px; border-radius:999px; background:#f59e0b; display:inline-block;"></span>
-      <span>لوحة المسار اليومي V6</span>
+  <!-- V6 Custom Frameless Desktop Titlebar (Fixed + Non-Intercepting Buttons) -->
+  <div id="v6DesktopTitlebar" style="display:none; position:fixed; top:0; left:0; right:0; z-index:9999; height:34px; background:#070b14; border-bottom:1px solid rgba(148,163,184,0.2); padding:0 10px; align-items:center; justify-content:space-between; user-select:none; direction:rtl;">
+    <div id="v6DragArea" data-tauri-drag-region style="display:flex; align-items:center; gap:8px; font-size:11px; font-weight:800; color:#94a3b8; flex:1; height:100%; cursor:default;">
+      <span data-tauri-drag-region style="width:8px; height:8px; border-radius:999px; background:#f59e0b; display:inline-block;"></span>
+      <span data-tauri-drag-region>لوحة المسار اليومي V6</span>
     </div>
-    <div style="display:flex; align-items:center; gap:4px; height:100%;">
-      <button id="v6WinMin" type="button" title="تصغير" style="width:32px; height:24px; border:none; border-radius:6px; background:transparent; color:#94a3b8; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center;">—</button>
-      <button id="v6WinMax" type="button" title="تكبير / استعادة" style="width:32px; height:24px; border:none; border-radius:6px; background:transparent; color:#94a3b8; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center;">□</button>
-      <button id="v6WinClose" type="button" title="إخفاء للتراي / إغلاق" style="width:32px; height:24px; border:none; border-radius:6px; background:transparent; color:#f43f5e; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
+    <div style="display:flex; align-items:center; gap:4px; height:100%; position:relative; z-index:10000;">
+      <button id="v6WinMin" type="button" title="تصغير" style="width:34px; height:24px; border:none; border-radius:6px; background:transparent; color:#cbd5e1; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center;">—</button>
+      <button id="v6WinMax" type="button" title="تكبير / استعادة" style="width:34px; height:24px; border:none; border-radius:6px; background:transparent; color:#cbd5e1; font-size:11px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center;">□</button>
+      <button id="v6WinClose" type="button" title="إخفاء للتراي / إغلاق" style="width:34px; height:24px; border:none; border-radius:6px; background:transparent; color:#fb7185; font-size:12px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center;">✕</button>
     </div>
   </div>
 
@@ -8043,37 +8043,66 @@ YYYY-MM-DD | HH:MM | العنوان | التصنيف | التكرار
       }
 
 
-      // --- 13. Custom Frameless Desktop Titlebar Controls (Tauri Desktop Only) ---
+      // --- 13. Custom Frameless Desktop Titlebar + Always-Pinned Sticky Header ---
       const isAndroidUA = /Android/i.test(navigator.userAgent);
       const tb = document.getElementById('v6DesktopTitlebar');
-      if (isTauri && !isAndroidUA && tb) {
-        tb.style.display = 'flex';
-        const stickyHeader = document.querySelector('header');
-        if (stickyHeader) stickyHeader.style.top = '34px';
+      const mainHeader = document.querySelector('header');
+      const showCustomBar = Boolean(isTauri && !isAndroidUA && tb);
 
-        const getWin = () => window.__TAURI__ && window.__TAURI__.window && window.__TAURI__.window.getCurrentWindow();
+      function syncFixedHeaderLayout() {
+        const barH = showCustomBar ? 34 : 0;
+        if (mainHeader) {
+          mainHeader.style.position = 'fixed';
+          mainHeader.style.top = barH + 'px';
+          mainHeader.style.left = '0';
+          mainHeader.style.right = '0';
+          mainHeader.style.zIndex = '9000';
+          const totalH = barH + mainHeader.offsetHeight;
+          document.body.style.paddingTop = totalH + 'px';
+        }
+      }
+
+      if (showCustomBar) {
+        tb.style.display = 'flex';
+        const getWin = () => {
+          try {
+            if (window.__TAURI__ && window.__TAURI__.window && typeof window.__TAURI__.window.getCurrentWindow === 'function') {
+              return window.__TAURI__.window.getCurrentWindow();
+            }
+          } catch (_) {}
+          return null;
+        };
+
         const bMin = document.getElementById('v6WinMin');
         const bMax = document.getElementById('v6WinMax');
         const bCls = document.getElementById('v6WinClose');
+        const dragArea = document.getElementById('v6DragArea');
 
-        bMin.onclick = () => { const w = getWin(); if (w) w.minimize(); };
-        bMax.onclick = () => { const w = getWin(); if (w) w.toggleMaximize(); };
-        bCls.onclick = () => { const w = getWin(); if (w) w.close(); };
+        bMin.addEventListener('click', (e) => { e.stopPropagation(); const w = getWin(); if (w) w.minimize(); });
+        bMax.addEventListener('click', (e) => { e.stopPropagation(); const w = getWin(); if (w) w.toggleMaximize(); });
+        bCls.addEventListener('click', (e) => { e.stopPropagation(); const w = getWin(); if (w) w.close(); });
 
         [bMin, bMax].forEach(b => {
           b.onmouseenter = () => { b.style.background = '#1e293b'; b.style.color = '#ffffff'; };
-          b.onmouseleave = () => { b.style.background = 'transparent'; b.style.color = '#94a3b8'; };
+          b.onmouseleave = () => { b.style.background = 'transparent'; b.style.color = '#cbd5e1'; };
         });
         bCls.onmouseenter = () => { bCls.style.background = '#f43f5e'; bCls.style.color = '#ffffff'; };
-        bCls.onmouseleave = () => { bCls.style.background = 'transparent'; bCls.style.color = '#f43f5e'; };
+        bCls.onmouseleave = () => { bCls.style.background = 'transparent'; bCls.style.color = '#fb7185'; };
 
-        tb.addEventListener('mousedown', (e) => {
-          if (e.target.closest('button') || e.button !== 0) return;
-          const w = getWin();
-          if (w && e.detail === 2) w.toggleMaximize();
-          else if (w && typeof w.startDragging === 'function') w.startDragging();
-        });
+        if (dragArea) {
+          dragArea.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            const w = getWin();
+            if (!w) return;
+            if (e.detail === 2) w.toggleMaximize();
+            else if (typeof w.startDragging === 'function') w.startDragging();
+          });
+        }
       }
+
+      syncFixedHeaderLayout();
+      window.addEventListener('resize', syncFixedHeaderLayout);
+      setTimeout(syncFixedHeaderLayout, 250);
 
     })();
   </script>
