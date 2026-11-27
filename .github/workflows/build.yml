@@ -55,7 +55,6 @@ jobs:
           NDK_DIR=$(ls -d "$SDK_DIR/ndk/"* | sort -V | tail -n 1)
           echo "ANDROID_HOME=$SDK_DIR" >> $GITHUB_ENV
           echo "NDK_HOME=$NDK_DIR" >> $GITHUB_ENV
-          echo "Using ANDROID_HOME=$SDK_DIR and NDK_HOME=$NDK_DIR"
       - name: Bundle Offline Amiri Calligraphy Font (.ttf)
         run: |
           mkdir -p src/assets/fonts
@@ -68,7 +67,7 @@ jobs:
           npx tauri icon src-tauri/icons/icon.svg
           npx tauri android init --ci
       - name: Build Android APK (aarch64)
-        run: npx tauri android build --apk --target aarch64
+        run: npx tauri android build --apk --debug --target aarch64
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
