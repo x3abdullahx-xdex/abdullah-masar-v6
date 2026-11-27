@@ -21,8 +21,8 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path src/assets/fonts
-          Invoke-WebRequest -Uri "https://github.com/aliftype/amiri/raw/main/Amiri-Regular.ttf" -OutFile "src/assets/fonts/Amiri-Regular.ttf"
-          Invoke-WebRequest -Uri "https://github.com/aliftype/amiri/raw/main/Amiri-Bold.ttf" -OutFile "src/assets/fonts/Amiri-Bold.ttf"
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Regular.ttf" -OutFile "src/assets/fonts/Amiri-Regular.ttf"
+          Invoke-WebRequest -Uri "https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Bold.ttf" -OutFile "src/assets/fonts/Amiri-Bold.ttf"
       - name: Install Tauri CLI
         run: npm install
       - name: Generate Tauri App Icons from SVG
@@ -55,8 +55,8 @@ jobs:
       - name: Bundle Offline Amiri Calligraphy Font (.ttf)
         run: |
           mkdir -p src/assets/fonts
-          curl -fsSL "https://github.com/aliftype/amiri/raw/main/Amiri-Regular.ttf" -o src/assets/fonts/Amiri-Regular.ttf
-          curl -fsSL "https://github.com/aliftype/amiri/raw/main/Amiri-Bold.ttf" -o src/assets/fonts/Amiri-Bold.ttf
+          curl -fsSL "https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Regular.ttf" -o src/assets/fonts/Amiri-Regular.ttf
+          curl -fsSL "https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Bold.ttf" -o src/assets/fonts/Amiri-Bold.ttf
       - name: Install Android NDK & Build Tools
         run: |
           sdkmanager "ndk;26.3.11579264" "platforms;android-34" "build-tools;34.0.0"
