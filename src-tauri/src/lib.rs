@@ -134,7 +134,10 @@ pub fn run() {
             commands::delete_note,
             commands::get_monthly_telemetry,
             commands::import_v5_backup,
-            commands::run_gist_sync
+            commands::run_gist_sync,
+            commands::fetch_and_save_ui_update,
+            commands::load_hot_ui,
+            commands::clear_hot_ui
         ])
         .run(tauri::generate_context!())
         .expect("error while running Abdullah Masar V6");
