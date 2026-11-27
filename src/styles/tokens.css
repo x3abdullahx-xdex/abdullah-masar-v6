@@ -1,0 +1,58 @@
+/* Abdullah Masar V6 — 100% Offline Design Tokens (Zero CDNs) */
+:root {
+  --bg: #0b1120;
+  --surface: #111827;
+  --surface-2: #1a2335;
+  --border: rgba(148, 163, 184, 0.16);
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --accent: #38bdf8;
+  --emerald: #10b981;
+  --amber: #f59e0b;
+  --rose: #f43f5e;
+  --indigo: #818cf8;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --font-ui: "Segoe UI", "IBM Plex Sans Arabic", "Tajawal", Tahoma, Arial, sans-serif;
+  --font-serif: "Amiri", "Traditional Arabic", "Geeza Pro", Georgia, serif;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
+}
+
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --border: rgba(15, 23, 42, 0.1);
+  --text: #0f172a;
+  --text-muted: #475569;
+  --accent: #0284c7;
+  --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* Calm Mode (🌙): lower contrast, zero loud animations */
+[data-calm="true"] {
+  --accent: #64748b;
+  --amber: #a8a29e;
+  --emerald: #34d399;
+}
+[data-calm="true"] * {
+  transition-duration: 0.05s !important;
+  animation: none !important;
+}
+
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  direction: rtl;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select, textarea {
+  font-family: inherit;
+  color: inherit;
+}
+.hidden { display: none; }

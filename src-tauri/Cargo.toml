@@ -1,0 +1,33 @@
+[package]
+name = "abdullah-masar-v6"
+version = "6.0.0"
+description = "لوحة المسار اليومي V6 — Offline-First Personal Discipline OS"
+authors = ["Abdullah"]
+edition = "2021"
+
+[lib]
+name = "abdullah_masar_v6_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-notification = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-masar-timer = { path = "plugins/tauri-plugin-masar-timer" }
+
+rusqlite = { version = "0.32", features = ["bundled", "serde_json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+thiserror = "2"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-single-instance = "2"
+keyring = "3"
