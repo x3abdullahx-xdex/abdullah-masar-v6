@@ -2297,6 +2297,8 @@
   <!-- JAVASCRIPT ENGINE (MODULAR, OFFLINE-READY, TIMEZONE-SAFE)             -->
   <!-- ===================================================================== -->
   <script>
+(function() {
+
     'use strict';
 
     /* =========================================================================
@@ -7189,7 +7191,28 @@
     App.Updater.renderUI();
     updateLiveClock();
     setInterval(updateLiveClock, 1000);
-  </script>
+  
+
+      window.App = App;
+      window.renderEditor = renderEditor;
+      window.__V5__ = {
+        getState: () => state,
+        saveState,
+        renderDailyAll,
+        showToast,
+        escapeHtml,
+        parseDateKey,
+        getTodayKey,
+        getDayRecord,
+        computeDayScore,
+        renderDayInspector,
+        formatArabicFullDate,
+        formatArabicShortDate,
+        diffDaysFromToday
+      };
+    })();
+
+</script>
   <script>
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
       window.addEventListener('load', () => {
@@ -7213,6 +7236,18 @@
        10. Mobile Screen WakeLock + Android Foreground Service + Desktop Tray
        ========================================================================= */
     (function initMasarV6Complete() {
+      const __v5 = window.__V5__ || {};
+      const state = __v5.getState ? __v5.getState() : {};
+      const saveState = __v5.saveState || (() => {});
+      const renderDailyAll = __v5.renderDailyAll || (() => {});
+      const showToast = __v5.showToast || (() => {});
+      const escapeHtml = __v5.escapeHtml || (s => String(s || ''));
+      const parseDateKey = __v5.parseDateKey || (d => new Date(d));
+      const getTodayKey = __v5.getTodayKey || (() => new Date().toISOString().slice(0, 10));
+      const getDayRecord = __v5.getDayRecord || (() => ({ prayers: {}, statuses: {}, statusesUpdatedAt: {} }));
+      const computeDayScore = __v5.computeDayScore || (() => ({ total: 0, prayersDone: 0, tasksDone: 0, tasksActive: 0, focusMinutes: 0, isShiftDay: false }));
+      const renderDayInspector = __v5.renderDayInspector || window.renderDayInspector;
+
       const EXCUSE_LABELS = {
         shift_overload: 'ضغط شيفت / شغل',
         health: 'إرهاق أو ظرف صحي',
