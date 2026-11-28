@@ -1067,6 +1067,22 @@
       }
     }
 
+  
+    /* V6 Zero-GPU Optimization: Eliminates 60fps backdrop-blur & box-shadow glow repaint storms */
+    .backdrop-blur-xl, .backdrop-blur-sm, .glass-card, #mainHeader, #mobileNav {
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    #mainHeader, #mobileNav {
+      background-color: #0b1120 !important;
+    }
+    .spotlight-active, .spotlight-overdue, .spotlight-upcoming, .animate-pulse, .animate-ping {
+      animation: none !important;
+    }
+    .spotlight-active { box-shadow: 0 0 18px rgba(16, 185, 129, 0.22) !important; }
+    .spotlight-overdue { box-shadow: 0 0 18px rgba(244, 63, 94, 0.24) !important; }
+    .spotlight-upcoming { box-shadow: 0 0 16px rgba(56, 189, 248, 0.20) !important; }
+
   </style>
 </head>
 <body class="pb-24 lg:pb-12 selection:bg-amber-500/30 selection:text-amber-200">
@@ -1749,7 +1765,7 @@
           </div>
           <div>
             <label for="updRepoInput" class="block text-xs font-bold text-slate-300 mb-1">Repo</label>
-            <input id="updRepoInput" type="text" dir="ltr" value="Tasks-tool" class="w-full bg-[#0b1120] border border-slate-700 focus:border-amber-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-mono text-white" />
+            <input id="updRepoInput" type="text" dir="ltr" value="abdullah-masar-v6" class="w-full bg-[#0b1120] border border-slate-700 focus:border-amber-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-mono text-white" />
           </div>
           <div>
             <label for="updBranchInput" class="block text-xs font-bold text-slate-300 mb-1">Branch</label>
@@ -4398,13 +4414,13 @@
           const parsed = raw ? JSON.parse(raw) : {};
           return {
             owner: parsed.repoOwner || 'x3abdullahx-xdex',
-            repo: parsed.repoName || 'Tasks-tool',
+            repo: parsed.repoName === 'Tasks-tool' || !parsed.repoName ? 'abdullah-masar-v6' : parsed.repoName,
             branch: parsed.repoBranch || 'main',
             useSyncToken: parsed.useSyncToken !== false,
             deployToken: parsed.deployToken || ''
           };
         } catch {
-          return { owner: 'x3abdullahx-xdex', repo: 'Tasks-tool', branch: 'main', useSyncToken: true, deployToken: '' };
+          return { owner: 'x3abdullahx-xdex', repo: 'abdullah-masar-v6', branch: 'main', useSyncToken: true, deployToken: '' };
         }
       },
 
@@ -4498,7 +4514,7 @@
           try {
             this.setStatus('⏳ 1/4 — جارٍ جلب بيانات index.html الحالية من GitHub...');
             let indexSha;
-            const getIdx = await fetch(`${baseApi}/index.html?ref=${encodeURIComponent(branch)}`, { headers });
+            const getIdx = await fetch(`${baseApi}/src/index.html?ref=${encodeURIComponent(branch)}`, { headers });
             if (getIdx.ok) {
               const idxJson = await getIdx.json();
               indexSha = idxJson.sha;
@@ -4513,7 +4529,7 @@
               branch
             };
             if (indexSha) putIdxBody.sha = indexSha;
-            const putIdx = await fetch(`${baseApi}/index.html`, { method: 'PUT', headers, body: JSON.stringify(putIdxBody) });
+            const putIdx = await fetch(`${baseApi}/src/index.html`, { method: 'PUT', headers, body: JSON.stringify(putIdxBody) });
             if (!putIdx.ok) throw new Error(mapHttpError(putIdx.status, 'index.html'));
 
             this.setStatus('⏳ 3/4 — جارٍ قراءة sw.js وتجديد اسم الكاش تلقائياً...');
